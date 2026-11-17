@@ -4,9 +4,7 @@
 *.tfplan
 crash.log
 crash.*.log
-
-terraform.tfvars
-*.auto.tfvars
+*.tfvars
 
 override.tf
 override.tf.json
@@ -15,3 +13,4 @@ override.tf.json
 
 .DS_Store
 env.sh
+openrc.sh
