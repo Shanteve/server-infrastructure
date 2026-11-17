@@ -1,0 +1,14 @@
+- name: Install security package
+  ansible.builtin.apt:
+    name: "unattended-upgrades"
+    state: present
+
+- name: Configure authomatic security updates
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";

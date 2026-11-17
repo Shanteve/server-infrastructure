@@ -1,0 +1,58 @@
+# Основная директория мониторинга на сервере.
+monitoring_base_dir: /opt/monitoring
+
+# Имя Docker-сети.
+monitoring_network: monitoring
+
+# Имя Docker Compose проекта.
+monitoring_project_name: monitoring_stack
+
+# Docker Compose файл.
+monitoring_compose_file: "{{ monitoring_base_dir }}/docker-compose.yml"
+
+# Версии образов.
+monitoring_images:
+  prometheus: prom/prometheus:v3.16.0
+  grafana: grafana/grafana:13.1-slim
+  node_exporter: prom/node-exporter:v1.12.1
+  cadvisor: gcr.io/cadvisor/cadvisor:v0.60.6
+  blackbox_exporter: prom/blackbox-exporter:v0.29.1
+  alertmanager: prom/alertmanager:v0.35.0
+
+# Prometheus.
+monitoring_prometheus_retention: 7d
+monitoring_prometheus_scrape_interval: 30s
+monitoring_prometheus_evaluation_interval: 30s
+
+# Параметры Grafana.
+monitoring_grafana_port: 3000
+
+# Параметры Prometheus.
+monitoring_prometheus_port: 9090
+
+# Проверяемые HTTP/HTTPS ресурсы.
+monitoring_blackbox_targets: []
+
+# Интервал проверки Blackbox.
+monitoring_blackbox_scrape_interval: 30s
+
+# Ограничения ресурсов
+monitoring_resource_limits:
+  prometheus:
+    memory: 256M
+    cpus: "0.30"
+  grafana:
+    memory: 256M
+    cpus: "0.30"
+  node_exporter:
+    memory: 64M
+    cpus: "0.10"
+  cadvisor:
+    memory: 128M
+    cpus: "0.20"
+  blackbox_exporter:
+    memory: 64M
+    cpus: "0.10"
+  alertmanager:
+    memory: 64M
+    cpus: "0.10"

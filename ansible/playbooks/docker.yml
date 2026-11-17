@@ -1,0 +1,8 @@
+- name: Install Docker on all managed servers
+  hosts: servers
+  become: true
+
+  serial: 1
+
+  roles:
+    - docker

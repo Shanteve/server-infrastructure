@@ -1,0 +1,24 @@
+- name: Check Grafana password
+  ansible.builtin.assert:
+    that:
+      - grafana_admin_password | length >= 12
+    fail_msg: >-
+      Пароль от Grafana должен быть не менее 12 символов.
+      Напишите его в Ansible Vault.
+      Команда: ansible-vault edit inventory/group_vars/vault.yml
+
+- name: Check that Docker is installed
+  ansible.builtin.command: docker info
+  register: monitoring_docker_info
+  changed_when: false
+  check_mode: false
+
+- name: Check Docker Compose version
+  ansible.builtin.command: docker compose version
+  register: monitoring_compose_version
+  changed_when: false
+  check_mode: false
+
+- name: Display Docker Compose version
+  ansible.builtin.debug:
+    msg: "{{ monitoring_compose_version.stdout }}"

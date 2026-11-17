@@ -1,0 +1,44 @@
+
+---
+- name: Create monitoring configuration directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ monitoring_base_dir }}"
+    - "{{ monitoring_base_dir }}/prometheus"
+    - "{{ monitoring_base_dir }}/prometheus/rules"
+    - "{{ monitoring_base_dir }}/grafana"
+    - "{{ monitoring_base_dir }}/grafana/provisioning"
+    - "{{ monitoring_base_dir }}/grafana/provisioning/datasources"
+    - "{{ monitoring_base_dir }}/grafana/provisioning/dashboards"
+    - "{{ monitoring_base_dir }}/grafana/dashboards"
+    - "{{ monitoring_base_dir }}/alertmanager"
+    - "{{ monitoring_base_dir }}/blackbox"
+
+- name: Create Prometheus data directory
+  ansible.builtin.file:
+    path: "{{ monitoring_base_dir }}/prometheus/data"
+    state: directory
+    owner: "65534"
+    group: "65534"
+    mode: "0750"
+
+- name: Create Grafana data directory
+  ansible.builtin.file:
+    path: "{{ monitoring_base_dir }}/grafana/data"
+    state: directory
+    owner: "472"
+    group: "472"
+    mode: "0750"
+
+- name: Create Alertmanager data directory
+  ansible.builtin.file:
+    path: "{{ monitoring_base_dir }}/alertmanager/data"
+    state: directory
+    owner: "65534"
+    group: "65534"
+    mode: "0750"

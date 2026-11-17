@@ -1,0 +1,63 @@
+# Конфигурация сервера
+server_user: shanteve
+ansible_user: "{{ server_user }}"
+ansible_ssh_private_key_file: "~/.ssh/hostvds_key"
+
+# SSH
+ssh_port: 22
+ansible_port: "{{ ssh_port }}"
+ssh_password_authentication: false
+
+# System
+server_timezone: Europe/Moscow
+
+# Firewall 
+ufw_default_incoming: deny
+ufw_default_outgoing: allow
+ufw_default_routed: deny
+
+# VPN
+awg_admin_ips:
+  - "10.66.66.2/32"
+  - "10.66.66.3/32"
+
+awg_admin_peers:
+  - name: macbook
+    address: "10.66.66.2/32"
+    public_key: "MACBOOK_PUBLIC_KEY"
+
+  - name: iphone
+    address: "10.66.66.3/32"
+    public_key: "IPHONE_PUBLIC_KEY"
+
+awg_hub_public_key: "HUB_PUBLIC_KEY"
+
+# MONITORING
+node_exporter_port: 9100
+
+prometheus_port: 9090
+
+prometheus_scrape_interval: 30s
+
+prometheus_retention_time: 3d
+
+prometheus_retention_size: 2GB
+
+# DOCKER
+docker_log_max_size: "10m"
+docker_log_max_files: "3"
+
+# SECURITY
+# Выбор того, что мы устанавливаем
+automatic_security_updates: false
+fail2ban_enabled: true
+vpn_enabled: true
+
+docker_enabled: true
+prometheus_enabled: true
+node_exporter_enabled: true
+
+# Режимы доступа
+# default - напрямую через ssh
+# vpn_only - ssh доступен только через vpn
+security_stage: default

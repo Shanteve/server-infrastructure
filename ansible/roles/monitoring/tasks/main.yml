@@ -1,0 +1,14 @@
+- name: Validate monitoring requirements
+  ansible.builtin.import_tasks: validate.yml
+
+# - name: Prepare monitoring directories
+#   ansible.builtin.import_tasks: directories.yml
+
+# - name: Configure monitoring services
+#   ansible.builtin.import_tasks: config.yml
+
+# - name: Deploy monitoring stack
+#   ansible.builtin.import_tasks: deploy.yml
+
+# - name: Verify monitoring stack
+#   ansible.builtin.import_tasks: verify.yml

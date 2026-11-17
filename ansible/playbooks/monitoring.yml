@@ -1,0 +1,7 @@
+- name: Install and configure Prometheus, Grafana, Node Exporter, Blackbox, Cadvisor
+  hosts: servers
+  become: true
+  serial: 1
+
+  roles:
+    - monitoring

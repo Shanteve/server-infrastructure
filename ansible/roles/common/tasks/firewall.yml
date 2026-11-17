@@ -1,0 +1,37 @@
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Validate security stage
+  ansible.builtin.assert:
+    that:
+      - security_stage in ["default", "vpn_only"]
+    fail_msg: "Invalid security_stage value"
+
+- name: Set default incoming policy
+  community.general.ufw:
+    direction: incoming
+    policy: "{{ ufw_default_incoming }}"
+
+- name: Set default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    policy: "{{ ufw_default_outgoing }}"
+
+- name: Set default routed policy
+  community.general.ufw:
+    direction: routed
+    policy: "{{ ufw_default_routed }}"
+
+- name: Allow SSH access
+  community.general.ufw:
+    rule: allow
+    port: "{{ ssh_port | string }}"
+    proto: tcp
+  when: security_stage == "default"
+
+- name: Выполнить задачу, если vpn_enabled равна true
+  ansible.builtin.debug:
+    msg: "Переменная vpn_enabled равна true"
+  when: vpn_enabled | bool

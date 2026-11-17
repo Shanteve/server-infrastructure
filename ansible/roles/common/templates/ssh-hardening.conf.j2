@@ -1,0 +1,25 @@
+Port {{ ssh_port }}
+
+PermitRootLogin no
+
+PubkeyAuthentication yes
+
+PasswordAuthentication {{ ssh_password_authentication | ternary('yes', 'no') }}
+
+KbdInteractiveAuthentication no
+
+PermitEmptyPasswords no
+
+X11Forwarding no
+
+AllowAgentForwarding no
+
+AllowTcpForwarding no
+
+MaxAuthTries 30
+
+LoginGraceTime 30
+
+ClientAliveInterval 300
+
+ClientAliveCountMax 2
