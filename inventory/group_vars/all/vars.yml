@@ -1,7 +1,7 @@
 # Конфигурация сервера
-server_user: shanteve
+server_user: "Имя вашего пользователя"
 ansible_user: "{{ server_user }}"
-ansible_ssh_private_key_file: "~/.ssh/hostvds_key"
+ansible_ssh_private_key_file: "Путь к вашему приватному ssh ключу"
 
 # SSH
 ssh_port: 22
@@ -15,22 +15,6 @@ server_timezone: Europe/Moscow
 ufw_default_incoming: deny
 ufw_default_outgoing: allow
 ufw_default_routed: deny
-
-# VPN
-awg_admin_ips:
-  - "10.66.66.2/32"
-  - "10.66.66.3/32"
-
-awg_admin_peers:
-  - name: macbook
-    address: "10.66.66.2/32"
-    public_key: "MACBOOK_PUBLIC_KEY"
-
-  - name: iphone
-    address: "10.66.66.3/32"
-    public_key: "IPHONE_PUBLIC_KEY"
-
-awg_hub_public_key: "HUB_PUBLIC_KEY"
 
 # MONITORING
 node_exporter_port: 9100
