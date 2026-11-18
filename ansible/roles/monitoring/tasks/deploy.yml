@@ -1,0 +1,18 @@
+---
+- name: Deploy monitoring Docker Compose stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_base_dir }}"
+    project_name: "{{ monitoring_project_name }}"
+
+    files:
+      - compose.yml
+
+    state: present
+
+    pull: missing
+
+    recreate: auto
+
+    remove_orphans: true
+
+    timeout: 60

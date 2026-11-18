@@ -1,0 +1,47 @@
+---
+# Перезапускаем Prometheus при изменении его конфигурации или правил.
+- name: Restart prometheus
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_base_dir }}"
+    project_name: "{{ monitoring_project_name }}"
+    files:
+      - compose.yml
+    services:
+      - prometheus
+    state: restarted
+
+
+# Перезапускаем Grafana при изменении datasource или пароля.
+- name: Restart grafana
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_base_dir }}"
+    project_name: "{{ monitoring_project_name }}"
+    files:
+      - compose.yml
+    services:
+      - grafana
+    state: restarted
+
+
+# Перезапускаем Alertmanager при изменении конфигурации.
+- name: Restart alertmanager
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_base_dir }}"
+    project_name: "{{ monitoring_project_name }}"
+    files:
+      - compose.yml
+    services:
+      - alertmanager
+    state: restarted
+
+
+# Перезапускаем Blackbox Exporter при изменении конфигурации.
+- name: Restart blackbox exporter
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_base_dir }}"
+    project_name: "{{ monitoring_project_name }}"
+    files:
+      - compose.yml
+    services:
+      - blackbox-exporter
+    state: restarted

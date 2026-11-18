@@ -1,58 +1,147 @@
-# Основная директория мониторинга на сервере.
+# Имя проекта Docker Compose.
+monitoring_project_name: monitoring
+
+# Корневая директория проекта на сервере.
 monitoring_base_dir: /opt/monitoring
 
-# Имя Docker-сети.
-monitoring_network: monitoring
+# Директория с конфигурациями.
+monitoring_config_dir: "{{ monitoring_base_dir }}/config"
 
-# Имя Docker Compose проекта.
-monitoring_project_name: monitoring_stack
+# Директория для секретов.
+monitoring_secret_dir: "{{ monitoring_base_dir }}/secrets"
 
-# Docker Compose файл.
-monitoring_compose_file: "{{ monitoring_base_dir }}/docker-compose.yml"
+# Группа, которой разрешено изменять конфигурации.
+monitoring_config_group: sudo
 
-# Версии образов.
-monitoring_images:
-  prometheus: prom/prometheus:v3.16.0
-  grafana: grafana/grafana:13.1-slim
-  node_exporter: prom/node-exporter:v1.12.1
-  cadvisor: gcr.io/cadvisor/cadvisor:v0.60.6
-  blackbox_exporter: prom/blackbox-exporter:v0.29.1
-  alertmanager: prom/alertmanager:v0.35.0
+# Права на директории конфигураций.
+monitoring_config_dir_mode: "0775"
 
-# Prometheus.
-monitoring_prometheus_retention: 7d
+# Права на файлы конфигураций.
+monitoring_config_file_mode: "0664"
+
+
+# -------------------------------------------------------
+# Пути к конфигурациям
+# -------------------------------------------------------
+
+monitoring_prometheus_config_dir: "{{ monitoring_config_dir }}/prometheus"
+
+monitoring_alertmanager_config_dir: "{{ monitoring_config_dir }}/alertmanager"
+
+monitoring_blackbox_config_dir: "{{ monitoring_config_dir }}/blackbox"
+
+monitoring_grafana_provisioning_dir: "{{ monitoring_config_dir }}/grafana/provisioning/datasources"
+
+monitoring_prometheus_config_file: "{{ monitoring_prometheus_config_dir }}/prometheus.yml"
+
+monitoring_prometheus_rules_file: "{{ monitoring_prometheus_config_dir }}/alert-rules.yml"
+
+monitoring_alertmanager_config_file: "{{ monitoring_alertmanager_config_dir }}/alertmanager.yml"
+
+monitoring_blackbox_config_file: "{{ monitoring_blackbox_config_dir }}/blackbox.yml"
+
+monitoring_grafana_datasource_file: "{{ monitoring_grafana_provisioning_dir }}/prometheus.yml"
+
+monitoring_compose_file: "{{ monitoring_base_dir }}/compose.yml"
+
+
+# -------------------------------------------------------
+# Grafana
+# -------------------------------------------------------
+
+
+# Обязательно переопределить через Ansible Vault.
+monitoring_grafana_admin_user: ""
+monitoring_grafana_admin_password: ""
+
+monitoring_grafana_admin_password_min_length: 10
+
+monitoring_grafana_admin_password_file: "{{ monitoring_secret_dir }}/grafana_admin_password"
+
+
+# -------------------------------------------------------
+# Версии Docker-образов
+# -------------------------------------------------------
+
+monitoring_prometheus_image: "prom/prometheus:v3.16.0"
+
+monitoring_grafana_image: "grafana/grafana:13.1"
+
+monitoring_node_exporter_image: "prom/node-exporter:v1.12.1"
+
+monitoring_cadvisor_image: "ghcr.io/google/cadvisor:v0.60.6"
+
+monitoring_blackbox_exporter_image: "prom/blackbox-exporter:v0.29.1"
+
+monitoring_alertmanager_image: "prom/alertmanager:v0.35.0"
+
+
+# -------------------------------------------------------
+# Параметры Prometheus
+# -------------------------------------------------------
+
+# Не слишком частый сбор метрик для небольшого сервера.
 monitoring_prometheus_scrape_interval: 30s
+
 monitoring_prometheus_evaluation_interval: 30s
 
-# Параметры Grafana.
-monitoring_grafana_port: 3000
+monitoring_prometheus_scrape_timeout: 10s
 
-# Параметры Prometheus.
-monitoring_prometheus_port: 9090
+# Храним метрики максимум семь дней.
+monitoring_prometheus_retention_time: 5d
 
-# Проверяемые HTTP/HTTPS ресурсы.
-monitoring_blackbox_targets: []
+# Дополнительное ограничение размера TSDB.
+monitoring_prometheus_retention_size: 5GB
 
-# Интервал проверки Blackbox.
-monitoring_blackbox_scrape_interval: 30s
 
-# Ограничения ресурсов
-monitoring_resource_limits:
-  prometheus:
-    memory: 256M
-    cpus: "0.30"
-  grafana:
-    memory: 256M
-    cpus: "0.30"
-  node_exporter:
-    memory: 64M
-    cpus: "0.10"
-  cadvisor:
-    memory: 128M
-    cpus: "0.20"
-  blackbox_exporter:
-    memory: 64M
-    cpus: "0.10"
-  alertmanager:
-    memory: 64M
-    cpus: "0.10"
+# -------------------------------------------------------
+# Blackbox Exporter
+# -------------------------------------------------------
+
+# Внутренние HTTP endpoints, которые будем проверять.
+monitoring_blackbox_http_targets:
+  - "http://prometheus:9090/-/healthy"
+  - "http://grafana:3000/api/health"
+  - "http://alertmanager:9093/-/healthy"
+
+# Дополнительные TCP endpoints можно добавить сюда.
+monitoring_blackbox_tcp_targets: []
+
+
+# -------------------------------------------------------
+# Порты
+# -------------------------------------------------------
+
+# На хосте интерфейсы доступны только через loopback.
+monitoring_bind_address: "127.0.0.1"
+
+monitoring_prometheus_host_port: 9090
+
+monitoring_grafana_host_port: 3000
+
+monitoring_alertmanager_host_port: 9093
+
+
+# -------------------------------------------------------
+# Ограничения ресурсов контейнеров
+# -------------------------------------------------------
+
+# Значения являются верхними пределами, а не резервированием RAM.
+
+monitoring_prometheus_memory: 384m
+monitoring_prometheus_cpus: 0.40
+
+monitoring_grafana_memory: 256m
+monitoring_grafana_cpus: 0.20
+
+monitoring_node_exporter_memory: 64m
+monitoring_node_exporter_cpus: 0.10
+
+monitoring_cadvisor_memory: 128m
+monitoring_cadvisor_cpus: 0.15
+
+monitoring_blackbox_exporter_memory: 48m
+monitoring_blackbox_exporter_cpus: 0.10
+
+monitoring_alertmanager_memory: 48m
+monitoring_alertmanager_cpus: 0.05

@@ -1,0 +1,52 @@
+- name: Render Docker Compose configuration
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ monitoring_compose_file }}"
+    owner: root
+    group: "{{ monitoring_config_group }}"
+    mode: "0644"
+
+- name: Render Prometheus configuration
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ monitoring_prometheus_config_file }}"
+    owner: root
+    group: "{{ monitoring_config_group }}"
+    mode: "{{ monitoring_config_file_mode }}"
+  notify: Restart prometheus
+
+- name: Render Prometheus alert rules
+  ansible.builtin.template:
+    src: alert-rules.yml.j2
+    dest: "{{ monitoring_prometheus_rules_file }}"
+    owner: root
+    group: "{{ monitoring_config_group }}"
+    mode: "{{ monitoring_config_file_mode }}"
+  notify: Restart prometheus
+
+- name: Render Alertmanager configuration
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: "{{ monitoring_alertmanager_config_file }}"
+    owner: root
+    group: "{{ monitoring_config_group }}"
+    mode: "{{ monitoring_config_file_mode }}"
+  notify: Restart alertmanager
+
+- name: Render Blackbox Exporter configuration
+  ansible.builtin.template:
+    src: blackbox.yml.j2
+    dest: "{{ monitoring_blackbox_config_file }}"
+    owner: root
+    group: "{{ monitoring_config_group }}"
+    mode: "{{ monitoring_config_file_mode }}"
+  notify: Restart blackbox exporter
+
+- name: Render Grafana datasource configuration
+  ansible.builtin.template:
+    src: grafana-datasource.yml.j2
+    dest: "{{ monitoring_grafana_datasource_file }}"
+    owner: root
+    group: "{{ monitoring_config_group }}"
+    mode: "{{ monitoring_config_file_mode }}"
+  notify: Restart grafana

@@ -1,0 +1,77 @@
+groups:
+  - name: infrastructure-alerts
+    rules:
+
+      # Целевой сервис недоступен.
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Monitoring target is down"
+          description: "Target {% raw %}{{ $labels.instance }}{% endraw %} has been unavailable for more than 2 minutes."
+
+
+      # Высокая загрузка CPU.
+      - alert: HostHighCPU
+        expr: |
+          100 * (
+            1 - avg by(instance) (
+              rate(node_cpu_seconds_total{mode="idle"}[5m])
+            )
+          ) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage on {% raw %}{{ $labels.instance }}{% endraw %} is above 85%."
+
+
+      # Высокое потребление оперативной памяти.
+      - alert: HostHighMemory
+        expr: |
+          100 * (
+            1 -
+            node_memory_MemAvailable_bytes
+            /
+            node_memory_MemTotal_bytes
+          ) > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage on {% raw %}{{ $labels.instance }}{% endraw %} is above 90%."
+
+
+      # Заканчивается место на диске.
+      - alert: HostLowDiskSpace
+        expr: |
+          100 * (
+            node_filesystem_avail_bytes{
+              fstype!~"tmpfs|overlay|squashfs|ramfs"
+            }
+            /
+            node_filesystem_size_bytes{
+              fstype!~"tmpfs|overlay|squashfs|ramfs"
+            }
+          ) < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Filesystem {% raw %}{{ $labels.mountpoint }}{% endraw %} on {% raw %}{{ $labels.instance }}{% endraw %} has less than 10% free space."
+
+
+      # Blackbox не может проверить endpoint.
+      - alert: BlackboxProbeFailed
+        expr: probe_success{job=~"blackbox-(http|tcp)"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Endpoint is unavailable"
+          description: "Blackbox probe failed for {% raw %}{{ $labels.instance }}{% endraw %}."

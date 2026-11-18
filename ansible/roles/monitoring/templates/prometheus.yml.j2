@@ -1,0 +1,118 @@
+---
+# Общие параметры сбора метрик.
+global:
+  scrape_interval: {{ monitoring_prometheus_scrape_interval }}
+  evaluation_interval: {{ monitoring_prometheus_evaluation_interval }}
+  scrape_timeout: {{ monitoring_prometheus_scrape_timeout }}
+
+
+# Подключение Alertmanager.
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "alertmanager:9093"
+
+
+# Файл с правилами оповещения.
+rule_files:
+  - /etc/prometheus/alert-rules.yml
+
+
+# Источники метрик.
+scrape_configs:
+
+  # Сам Prometheus.
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - "prometheus:9090"
+
+
+  # Метрики операционной системы.
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+          - "node-exporter:9100"
+
+
+  # Метрики Docker-контейнеров.
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - "cadvisor:8080"
+
+
+  # Метрики самого Blackbox Exporter.
+  - job_name: blackbox-exporter
+    static_configs:
+      - targets:
+          - "blackbox-exporter:9115"
+
+
+  # Метрики Alertmanager.
+  - job_name: alertmanager
+    static_configs:
+      - targets:
+          - "alertmanager:9093"
+
+
+{% if monitoring_blackbox_http_targets | length > 0 %}
+  # Проверка доступности HTTP/HTTPS endpoints.
+  - job_name: blackbox-http
+    metrics_path: /probe
+
+    params:
+      module:
+        - http_2xx
+
+    static_configs:
+      - targets:
+{% for target in monitoring_blackbox_http_targets %}
+          - {{ target | to_json }}
+{% endfor %}
+
+    relabel_configs:
+      # Исходный адрес переносим в параметр target.
+      - source_labels:
+          - __address__
+        target_label: __param_target
+
+      # В качестве instance показываем проверяемый адрес.
+      - source_labels:
+          - __param_target
+        target_label: instance
+
+      # Отправляем запрос самому Blackbox Exporter.
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+{% endif %}
+
+
+{% if monitoring_blackbox_tcp_targets | length > 0 %}
+  # Проверка доступности TCP-портов.
+  - job_name: blackbox-tcp
+    metrics_path: /probe
+
+    params:
+      module:
+        - tcp_connect
+
+    static_configs:
+      - targets:
+{% for target in monitoring_blackbox_tcp_targets %}
+          - {{ target | to_json }}
+{% endfor %}
+
+    relabel_configs:
+      - source_labels:
+          - __address__
+        target_label: __param_target
+
+      - source_labels:
+          - __param_target
+        target_label: instance
+
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+{% endif %}

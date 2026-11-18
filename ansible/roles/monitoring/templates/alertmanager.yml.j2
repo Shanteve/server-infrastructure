@@ -1,0 +1,28 @@
+---
+global:
+  # Через сколько времени неактивный alert считается resolved.
+  resolve_timeout: 5m
+
+
+# Основной маршрут.
+route:
+  receiver: default
+
+  # Группируем похожие уведомления.
+  group_by:
+    - alertname
+    - instance
+
+  # Ждём 30 секунд перед отправкой первой группы.
+  group_wait: 30s
+
+  # Минимальный интервал между обновлениями группы.
+  group_interval: 5m
+
+  # Интервал повторных уведомлений.
+  repeat_interval: 4h
+
+
+# Получатели уведомлений.
+receivers:
+  - name: default

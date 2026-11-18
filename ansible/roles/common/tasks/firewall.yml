@@ -31,7 +31,6 @@
     proto: tcp
   when: security_stage == "default"
 
-- name: Выполнить задачу, если vpn_enabled равна true
-  ansible.builtin.debug:
-    msg: "Переменная vpn_enabled равна true"
-  when: vpn_enabled | bool
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
