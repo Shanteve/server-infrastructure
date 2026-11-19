@@ -1,2 +1,4 @@
-monitoring_grafana_admin_user: your_grafana_user
-monitoring_grafana_admin_password: your_secret_password
+monitoring_grafana_admin_user: "your_grafana_user"
+monitoring_grafana_admin_password: "your_secret_password"
+
+gitlab_runner_token: "your_gitlab_token"

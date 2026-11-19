@@ -1,0 +1,95 @@
+- name: Check supported operating system
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == "Debian"
+    fail_msg: "GitLab Runner role supports Debian-based systems only."
+
+- name: Check runner authentication token
+  ansible.builtin.assert:
+    that:
+      - gitlab_runner_token | length > 0
+    fail_msg: "Set gitlab_runner_token in Ansible Vault."
+
+- name: Install repository dependencies
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Check GitLab Runner repository
+  ansible.builtin.stat:
+    path: "{{ gitlab_runner_repo_file }}"
+  register: gitlab_runner_repo_status
+
+- name: Download GitLab repository setup script
+  ansible.builtin.get_url:
+    url: "{{ gitlab_runner_repo_script_url }}"
+    dest: "{{ gitlab_runner_repo_script_path }}"
+    mode: "0700"
+  when: not gitlab_runner_repo_status.stat.exists
+
+- name: Configure GitLab Runner repository
+  ansible.builtin.command:
+    cmd: "bash {{ gitlab_runner_repo_script_path }}"
+    creates: "{{ gitlab_runner_repo_file }}"
+  when: not gitlab_runner_repo_status.stat.exists
+
+- name: Remove repository setup script
+  ansible.builtin.file:
+    path: "{{ gitlab_runner_repo_script_path }}"
+    state: absent
+
+- name: Install GitLab Runner
+  ansible.builtin.apt:
+    name: "{{ gitlab_runner_package }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Check Docker socket
+  ansible.builtin.stat:
+    path: /var/run/docker.sock
+  register: gitlab_runner_docker_socket
+
+- name: Verify Docker socket exists
+  ansible.builtin.assert:
+    that:
+      - gitlab_runner_docker_socket.stat.exists
+    fail_msg: "Docker socket not found. Run the Docker role first."
+
+- name: Create GitLab Runner configuration directory
+  ansible.builtin.file:
+    path: /etc/gitlab-runner
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Configure GitLab Runner
+  ansible.builtin.template:
+    src: config.toml.j2
+    dest: "{{ gitlab_runner_config_path }}"
+    owner: root
+    group: root
+    mode: "0640"
+  no_log: true
+  diff: false
+  notify: Restart GitLab Runner
+
+- name: Enable and start GitLab Runner
+  ansible.builtin.service:
+    name: "{{ gitlab_runner_service }}"
+    state: started
+    enabled: true
+
+- name: Verify GitLab Runner registration
+  ansible.builtin.command:
+    argv:
+      - gitlab-runner
+      - verify
+      - --config
+      - "{{ gitlab_runner_config_path }}"
+  changed_when: false
