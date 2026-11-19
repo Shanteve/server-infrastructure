@@ -18,6 +18,7 @@ log_format = "json"
     host = {{ gitlab_runner_docker_host | to_json }}
 
     image = {{ gitlab_runner_docker_image | to_json }}
+    pull_policy = ["always", "if-not-present", "never"]
 
     privileged = false
 
