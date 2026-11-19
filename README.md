@@ -1,10 +1,12 @@
 # Server Infrastructure Automation
 
-Это ansible проект для автоматизированной подготовки сервера Linux: базовая настройка и усиление безопасности сервера, установка Docker и развёртывание стека мониторинга.
+Это ansible проект для автоматизированной подготовки сервера Linux: базовая настройка и усиление безопасности сервера, установка Docker и развёртывание стека мониторинга. 
+
+Новое: теперь также можно установить gitlab_runner с executor - docker.
 
 Проект проверен на моём личном VPS, на котором параллельно размещены другие сервисы и приложения. Это позволило проверить автоматизацию не только в тестовой среде, но и на реально используемом сервере.
 
-# Мой сервер: https://shanteve.tech
+## Мой сервер: https://shanteve.tech
 
 ## Возможности
 ### `common` — базовая настройка сервера
@@ -20,8 +22,20 @@
 - добавление пользователя Ansible в группу `docker`.
 
 ### `monitoring` — мониторинг сервера и контейнеров
-Стек разворачивается через Docker Compose, а конфигурационные файлы генерируются из Jinja2-шаблонов.
+- стек разворачивается через Docker Compose, учитывая требования безопасности, а конфигурационные файлы генерируются из Jinja2-шаблонов.
 
+### `gitlab-runner` - установка и настройка gitlab runner'а
+- проверяет необходимые компоненты для установки runner'а
+То что на сервере: 
+   - именно Debian based ОС
+   - в ansible vault записан registration token
+   - установлен Docker
+- устанавливает gitlab runner через офиц. скрипт загрузки
+- копирует на сервер конфигурационные файлы, сгенерированные из Jinja2-шаблонов
+- проверяет конфиг на корректность 
+
+
+## Компоненты роли `monitoring`
 | Компонент | Назначение |
 |---|---|
 | Prometheus | Сбор и хранение метрик |
@@ -48,13 +62,15 @@ server-infrastructure/
     │   └── group_vars/all/
     │       ├── vars.yml
     │       └── vault.yml
-    ├── playbooks/
+    ├── playbooks/ 
     │   ├── bootstrap.yml
     │   ├── docker.yml
+    │   ├── gitlab-runner.yml
     │   └── monitoring.yml
     └── roles/
         ├── common/
         ├── docker/
+        ├── gitlab-runner/
         └── monitoring/
 ```
 
@@ -96,8 +112,9 @@ server-infrastructure/
    ansible-playbook playbooks/bootstrap.yml
    ansible-playbook playbooks/docker.yml
    ansible-playbook playbooks/monitoring.yml
+   ansible-playbook playbooks/gitlab-runner.yml
    ```
 
 ## Технологии
 
-`Ansible` · `YAML` · `Jinja2` · `Docker` · `Docker Compose` · `Prometheus` · `Grafana` · `Node Exporter` · `cAdvisor` · `Blackbox Exporter` · `Alertmanager` · `UFW` · `Fail2ban` · `Ansible Vault`
+`Ansible` · `YAML` · `Jinja2` · `Docker` · `Docker Compose` · `Prometheus` · `Grafana` · `Node Exporter` · `cAdvisor` · `Blackbox Exporter` · `Alertmanager` · `UFW` · `Fail2ban` · `Ansible Vault` · `gitlab-runner`, `Gitlab CI`
