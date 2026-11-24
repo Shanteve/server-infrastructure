@@ -1,7 +1,7 @@
 # Конфигурация сервера
-server_user: "Замените на вашего юзера"
+server_user: "shanteve"
 ansible_user: "{{ server_user }}"
-ansible_ssh_private_key_file: "Замените на путь к вашему SSH ключу"
+ansible_ssh_private_key_file: "~/.ssh/hostvds_key"
 
 # SSH
 ssh_port: 22

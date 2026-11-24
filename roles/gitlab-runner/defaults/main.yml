@@ -28,10 +28,8 @@ gitlab_runner_docker_privileged: false
 gitlab_runner_docker_cpus: "1.0"
 gitlab_runner_docker_memory: "1500m"
 
-# Docker security
-gitlab_runner_docker_security_opt:
-  - no-new-privileges:true
-
 # Docker volumes
 gitlab_runner_docker_volumes:
   - /cache
+  - /certs/client
+  - /home/rootless/.local/share/docker

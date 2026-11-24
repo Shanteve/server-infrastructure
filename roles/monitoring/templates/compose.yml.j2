@@ -169,10 +169,10 @@ services:
 
     restart: unless-stopped
      
-    privileged: true
-
     devices:
       - /dev/kmsg:/dev/kmsg
+    
+    privileged: true
 
     volumes:
       # Корневая файловая система хоста.
@@ -184,9 +184,9 @@ services:
       # Метаданные Docker-контейнеров.
       - /var/lib/docker:/var/lib/docker:ro
 
-      # Docker API для обнаружения контейнеров.
+      # Docker API и containerd для обнаружения контейнеров.
       # Важно: read-only bind mount не ограничивает API-команды.
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run:/var/run:ro
       
       - /dev/disk:/dev/disk:ro
     
